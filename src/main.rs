@@ -1,3 +1,6 @@
+mod models;
+mod infrastructure;
+
 use std::net::{TcpListener, TcpStream, UdpSocket, ToSocketAddrs};
 use std::thread;
 use std::str;
