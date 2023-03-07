@@ -9,12 +9,6 @@ pub(crate) mod dto {
     }
 
     impl DomainsDto{
-        pub fn new(domain:String, base_64_aes:String) -> Self {
-            Self {
-                domain,
-                base_64_aes,
-            }
-        }
 
         pub fn get_domain(&self) -> String {
             self.domain.clone()
@@ -43,14 +37,6 @@ pub(crate) mod dto {
     }
 
     impl RelayDto {
-        pub fn new(multicast_address: String, multicast_port: u16, network_interface: String, configured_domains: Vec<DomainsDto>) -> Self {
-            Self {
-                multicast_address,
-                multicast_port,
-                network_interface,
-                configured_domains
-            }
-        }
 
         pub fn get_multicast_address(&self) -> String {
             self.multicast_address.clone()

@@ -25,7 +25,7 @@ impl Domains {
         self.domain
     }
 
-    pub fn get_base(self) -> String {
+    pub fn get_aeskey(self) -> String {
         self.base_64_aes
     }
 }
@@ -56,21 +56,25 @@ impl Relay {
         self.configured_domains.clone()
     }
 
-    pub fn to_string(self) -> String {
+    pub fn to_string(&self) -> String {
         return format!("{}, {}, {}, {}", self.multicast_address, self.multicast_port, self.network_interface, self.network_interface);
     }
 }
 
 
+pub struct Clients {
+    client: TcpStream
+}
+
 // a revoir pour le client
-impl Clients{
+impl Clients {
     pub fn new(client: TcpStream) -> Clients {
         Clients {
             client
         }
     }
 
-    pub fn get_client(&self) -> TcpStream {
-        self.client.clone()
+    pub fn get_client(self) -> TcpStream {
+        self.client
     }
 }
