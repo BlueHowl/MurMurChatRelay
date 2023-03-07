@@ -1,4 +1,5 @@
 mod models;
+mod infrastructure;
 
 use std::net::{TcpListener, TcpStream, UdpSocket, ToSocketAddrs};
 use std::thread;
@@ -7,6 +8,7 @@ use std::io::{self, Read};
 use regex::Regex;
 use std::path::Path;
 use std::fs::File;
+use crate::infrastructure::json_repository::get_relay;
 use crate::models::Relay;
 
 fn handle_client(stream: TcpStream) {
@@ -16,12 +18,17 @@ fn handle_client(stream: TcpStream) {
 
 fn main() -> io::Result<()> {
 
-    let path = Path::new("./data/relay.json");
+    /*let path = Path::new("./data/relay.json");
     let mut file  = File::open(path).expect("File not found");
     let mut contents = String::new();
     File::read_to_string(&mut file, &mut contents).expect("Something went wrong reading the file");
     let mut relay : Relay = serde_json::from_str(&contents).expect("JSON parsing error");
     println!("{} {} {} {}", &relay.get_multicast_address(), &relay.get_multicast_port(), &relay.get_network_interface(), &relay.get_network_interface());
+    */
+
+    let relay = get_relay();
+    println!("Relay {} {} {} {}", relay.get_multicast_address().clone(), relay.get_multicast_port().clone(), relay.get_network_interface().clone(), relay.get_network_interface().clone());
+
 
     // Start UDP multicast listener on address 224.1.1.255:23845
     let multicast_socket = UdpSocket::bind("0.0.0.0:23502")?;
