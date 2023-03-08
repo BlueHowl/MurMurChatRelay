@@ -118,7 +118,7 @@ pub(super) mod json_repository {
         };
 
         println!("{}",&*json.clone());
-        let relay_dto: RelayDto = serde_json::from_str(&*json.clone()).unwrap();
+        let relay_dto: RelayDto = serde_json::from_str(&json).unwrap();
 
         dto_to_relay(relay_dto)
     }
