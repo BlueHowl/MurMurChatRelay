@@ -50,7 +50,6 @@ fn handle_client(mut stream: TcpStream) {
 
 fn main() -> io::Result<()> {
 
-
     let connected_domains: Vec<Clients> = Vec::new();
 
     let relay = get_relay();
@@ -64,7 +63,7 @@ fn main() -> io::Result<()> {
 
 
     // Spawn thread to handle multicast messages
-    thread::spawn(move || {
+    let handle = thread::spawn(move || {
         let mut buf = [0; 1024];
         let regex = Regex::new(r"^ECHO[\x20](\d{1,5})[\x20]([a-zA-Z\d.]{5,200})").unwrap();
         loop {
@@ -108,6 +107,7 @@ fn main() -> io::Result<()> {
         }
     });
 
+    handle.join().unwrap();
     Ok(())
 }
 
@@ -119,7 +119,6 @@ fn is_domain_allowed(domains: Vec<Domains>, domain_request: String) -> bool {
             is_allowed = true;
         }
     }
-
     is_allowed
 }
 
