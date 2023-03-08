@@ -61,21 +61,3 @@ impl Relay {
         return format!("{}, {}, {}, {}", self.multicast_address, self.multicast_port, self.network_interface, self.network_interface);
     }
 }
-
-
-pub struct Clients {
-    client: TcpStream
-}
-
-// a revoir pour le client
-impl Clients {
-    pub fn new(client: TcpStream) -> Clients {
-        Clients {
-            client
-        }
-    }
-
-    pub fn get_client(self) -> TcpStream {
-        self.client
-    }
-}

@@ -12,7 +12,7 @@ impl AesGcmEncryptor {
         }
     }
 
-    fn encrypt(key: String, nonce: &Nonce, plaintext: &[u8], aad: &[u8]) -> Vec<u8> {
+    /*fn encrypt(key: String, nonce: &Nonce, plaintext: &[u8], aad: &[u8]) -> Vec<u8> {
         let cipher = Aes256Gcm::new(key);
         cipher.encrypt(nonce, plaintext, aad).expect("encryption failure")
     }
@@ -20,5 +20,5 @@ impl AesGcmEncryptor {
     fn decrypt(key: String, nonce: &Nonce, ciphertext: &[u8], aad: &[u8]) -> Vec<u8> {
         let cipher = Aes256Gcm::new(key);
         cipher.decrypt(nonce, ciphertext, aad).expect("decryption failure")
-    }
+    }*/
 }

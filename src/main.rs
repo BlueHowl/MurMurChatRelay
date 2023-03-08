@@ -10,17 +10,17 @@ use std::str;
 use std::io::{self, Read, Write};
 use regex::Regex;
 use crate::infrastructure::json_repository::get_relay;
-use crate::models::{Clients};
 use crate::server_manager::ServerManager;
 
 
 fn main() -> io::Result<()> {
-    let connected_domains: Vec<Clients> = Vec::new();
 
     let relay = get_relay();
     println!("Relay {}", relay.to_string());
 
-    ServerManager::new(relay).expect("TODO: panic message");
+    let server_manager = ServerManager::new();
+
+    server_manager.start_listening(relay).expect("TODO: panic message");
 
     Ok(())
 }
