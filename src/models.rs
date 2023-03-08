@@ -6,6 +6,7 @@ pub struct Domains {
     base_64_aes: String,
 }
 
+#[derive(Clone)]
 pub struct Relay {
     multicast_address: String,
     multicast_port: u16,
