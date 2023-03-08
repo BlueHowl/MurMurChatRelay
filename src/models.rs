@@ -1,17 +1,16 @@
-use serde::{Serialize, Deserialize};
+use std::net::TcpStream;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct Domains {
     domain: String,
     base_64_aes: String,
 }
 
-#[derive(Serialize, Deserialize)]
 pub struct Relay {
     multicast_address: String,
     multicast_port: u16,
     network_interface: String,
-    configured_domains: [Domains; 2]
+    configured_domains: Vec<Domains>
 }
 
 impl Domains {
@@ -26,13 +25,13 @@ impl Domains {
         self.domain
     }
 
-    pub fn get_base(self) -> String {
+    pub fn get_aeskey(self) -> String {
         self.base_64_aes
     }
 }
 
 impl Relay {
-    pub fn new(multicast_address:String, multicast_port:u16, network_interface:String, configured_domains:[Domains; 2]) -> Relay {
+    pub fn new(multicast_address:String, multicast_port:u16, network_interface:String, configured_domains:Vec<Domains>) -> Relay {
         Relay {
             multicast_address,
             multicast_port,
@@ -41,23 +40,41 @@ impl Relay {
         }
     }
 
-    pub fn get_multicast_address(self) -> String {
-        self.multicast_address
+    pub fn get_multicast_address(&self) -> String {
+        self.multicast_address.clone()
     }
 
-    pub fn get_multicast_port(self) -> u16 {
-        self.multicast_port
+    pub fn get_multicast_port(&self) -> u16 {
+        self.multicast_port.clone()
     }
 
-    pub fn get_network_interface(self) -> String {
-        self.network_interface
+    pub fn get_network_interface(&self) -> String {
+        self.network_interface.clone()
     }
 
-    pub fn get_configured_domains(self) -> [Domains; 2] {
-        self.configured_domains
+    pub fn get_configured_domains(&self) -> Vec<Domains> {
+        self.configured_domains.clone()
     }
 
-    pub fn to_string(self) -> String {
+    pub fn to_string(&self) -> String {
         return format!("{}, {}, {}, {}", self.multicast_address, self.multicast_port, self.network_interface, self.network_interface);
+    }
+}
+
+
+pub struct Clients {
+    client: TcpStream
+}
+
+// a revoir pour le client
+impl Clients {
+    pub fn new(client: TcpStream) -> Clients {
+        Clients {
+            client
+        }
+    }
+
+    pub fn get_client(self) -> TcpStream {
+        self.client
     }
 }
