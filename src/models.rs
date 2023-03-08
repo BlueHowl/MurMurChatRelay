@@ -1,12 +1,9 @@
-use std::net::TcpStream;
-
 #[derive(Clone)]
 pub struct Domains {
     domain: String,
-    base_64_aes: String,
+    base_64_aes: String
 }
 
-#[derive(Clone)]
 pub struct Relay {
     multicast_address: String,
     multicast_port: u16,
@@ -26,8 +23,8 @@ impl Domains {
         self.domain
     }
 
-    pub fn get_aeskey(self) -> String {
-        self.base_64_aes
+    pub fn get_aeskey(&self) -> &String {
+        &self.base_64_aes
     }
 }
 

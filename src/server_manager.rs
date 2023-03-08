@@ -52,11 +52,27 @@ impl ServerManager {
                                     match TcpStream::connect(format!("{}:{}", domain, port)) {
 
                                         Ok(stream) => {
+                                            let mut connected_domains = self.connected_domains.lock().unwrap();
+                                            let server_thread = ServerThread::new(relay.get_configured_domains().get(0).unwrap().clone());
+                                            connected_domains.push(server_thread);
+                                            let server_thread_ref = connected_domains.last_mut().unwrap(); // get a mutable reference to the last element
+                                            server_thread_ref.run(stream);
 
-                                            let server_thread = ServerThread::new();
+                                            /*
+                                            let server_thread_ref = Arc::clone(&connected_domains.last().unwrap());
+                                            server_thread_ref.lock().unwrap().run(stream);
+
+                                            let mut connected_domains = self.connected_domains.lock().unwrap();
+                                            let server_thread = ServerThread::new(relay.get_configured_domains().get(0).unwrap().clone());
+                                            connected_domains.push(server_thread);
+                                            let server_thread_ref = connected_domains.last().unwrap();
+                                            server_thread_ref.run(stream);*/
+                                            /*let server_thread = ServerThread::new(relay.get_configured_domains().get(0).unwrap().clone());
+
                                             let mut connected_domains = self.connected_domains.lock().unwrap();
                                             connected_domains.push(server_thread);
-                                            server_thread.run(stream);
+                                            //server_thread.run(stream, relay.get_configured_domains().get(0).unwrap().clone());
+                                            connected_domains.last().unwrap().run(stream);*/
                                         }
                                         Err(e) => {
                                             println!("Error connecting to {}: {}", src.ip(), e);

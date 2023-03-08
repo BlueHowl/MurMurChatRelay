@@ -2,7 +2,7 @@ mod models;
 mod infrastructure;
 mod server_manager;
 mod server_thread;
-mod AESGCM;
+mod aesgcm;
 
 use std::net::{TcpStream};
 use std::thread;
