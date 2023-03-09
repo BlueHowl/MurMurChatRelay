@@ -16,15 +16,15 @@ impl AesGcmEncryptor {
         }
     }
 
-    pub fn encrypt(&self, plaintext: String) -> String {
+    pub fn encrypt(&self, plaintext: String) -> String { //todo generer un nonce aléatoire et envoyer avant le text crypté
         let ciphertext = self.cipher.encrypt(GenericArray::from_slice(self.nonce.as_slice()), plaintext.as_bytes())
             .expect("encryption failure!");
 
         String::from_utf8(ciphertext.to_vec()).expect("ciphertext is not valid utf-8")
     }
 
-    pub fn decrypt(&self, ciphertext: String) -> String {
-        let plaintext = self.cipher.decrypt(GenericArray::from_slice(self.nonce.as_slice()), ciphertext.as_bytes())
+    pub fn decrypt(&self, ciphertext: String, iv: String) -> String { //todo tester si iv est bien transformé en nonce
+        let plaintext = self.cipher.decrypt(GenericArray::from_slice(iv.as_bytes()), ciphertext.as_bytes())
             .expect("decryption failure!");
 
         String::from_utf8(plaintext.to_vec()).expect("ciphertext is not valid utf-8")

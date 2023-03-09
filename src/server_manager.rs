@@ -16,6 +16,7 @@ impl ServerManager {
             connected_domains: Arc::new(Mutex::new(Vec::new()))
         }
     }
+
     pub fn start_listening(self, relay: Relay) -> io::Result<()> {
         // Start UDP multicast listener on address 224.1.1.255:23502
         let multicast_socket = UdpSocket::bind(format!("0.0.0.0:{}", relay.get_multicast_port()))?;

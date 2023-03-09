@@ -38,27 +38,42 @@ impl ServerThread {
 
                     Ok(n) => {
 
-                        let message = aes_gcm.decrypt(str::from_utf8(&buffer[..n]).unwrap().to_string());
-                        let regex = Regex::new(r"^SEND\x20\d{1,5}@[a-zA-Z\d.]{5,200}\x20[a-zA-Z\d]{5,20}@[a-zA-Z\d.]{5,200}\x20#?[a-zA-Z\d]{5,20}@(?<domain>[a-zA-Z\d.]{5,200})\x20[\x20-\xFF]{1,500}$").unwrap();
-                        println!("Received message from {}: {}", stream.peer_addr().unwrap(), message);
+                        let message = str::from_utf8(&buffer[..n]).unwrap().to_string();
+                        let msg_regex = Regex::new(r"^(?<ivnonce>[\\x20-\\xFF]{1,12})\\x20(?<message>[\\x20-\\xFF]{1,1500})$").unwrap();
 
-                        loop {
-                            match regex.captures(&*message) {
 
-                                Some(caps) => {
-                                    println!("Domain: {}", &caps["domain"]);
-                                    forward_message_to_server();
-                                    break;
+
+                        match msg_regex.captures(&*message) {
+
+                            Some(caps) => {
+                                let uncryptedMsg = aes_gcm.decrypt((&caps["message"]).parse().unwrap(), (&caps["ivnonce"]).parse().unwrap());
+
+                                let regex = Regex::new(r"^SEND\x20\d{1,5}@[a-zA-Z\d.]{5,200}\x20[a-zA-Z\d]{5,20}@[a-zA-Z\d.]{5,200}\x20#?[a-zA-Z\d]{5,20}@(?<domain>[a-zA-Z\d.]{5,200})\x20[\x20-\xFF]{1,500}$").unwrap();
+                                println!("Received message from {}: {}", stream.peer_addr().unwrap(), message);
+
+                                match regex.captures(&*uncryptedMsg) {
+
+                                    Some(caps) => {
+                                        println!("Domain: {}", &caps["domain"]);
+                                        forward_message_to_server();
+                                        break;
+                                    }
+
+                                    None => {
+                                        println!("No send match");
+                                        break;
+                                    }
                                 }
 
-                                None => {
-                                    println!("No match");
-                                    break;
-                                }
                             }
+
+                            None => {
+                                println!("No relay message match");
+                                break;
+                            }
+
                         }
-                        // Echo the message back to the client todo remove
-                        stream.write_all(message.as_bytes()).unwrap();
+
                     }
 
                     Err(e) => {
