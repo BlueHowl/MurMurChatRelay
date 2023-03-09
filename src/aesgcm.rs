@@ -20,12 +20,12 @@ impl AesGcmEncryptor {
         let mut nonce = [0u8; 12];
         thread_rng().fill_bytes(&mut nonce);
 
-        let mut ciphertext = plaintext.as_bytes().to_vec();
-        let tag = self.cipher.encrypt_in_place_detached(&nonce.into(), &[], &mut ciphertext);
-
+        //let mut ciphertext = plaintext.as_bytes().to_vec();
+        //let tag = self.cipher.encrypt_in_place_detached(&nonce.into(), &[], &mut ciphertext);
+        let ciphertext = self.cipher.encrypt(nonce.into(), plaintext.as_bytes()).unwrap();
         let mut result = nonce.to_vec();
-        result.extend_from_slice(&ciphertext);
-        result.extend_from_slice(&tag.unwrap());
+        result.extend_from_slice(&*ciphertext);
+        //result.extend_from_slice(&tag.unwrap());
 
         Ok(general_purpose::STANDARD.encode(&result))
     }
@@ -56,7 +56,7 @@ impl AesGcmEncryptor {
     pub fn decrypt_string(&self, encrypted: &String) -> Result<String, ()> {
         let decoded = general_purpose::STANDARD.decode(encrypted.trim()).unwrap();
         let nonce = &decoded[..12];
-        let ciphertext = &decoded[12..decoded.len() - 16];
+        let ciphertext = &decoded[12..decoded.len()];
 
         let uncryptedtext = self.cipher.decrypt(nonce.into(), ciphertext).unwrap();
 
