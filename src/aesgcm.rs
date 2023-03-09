@@ -30,29 +30,6 @@ impl AesGcmEncryptor {
         Ok(general_purpose::STANDARD.encode(&result))
     }
 
-    /*
-    pub fn encrypt(&self, plaintext: String) -> String {
-        let mut nonce_bytes = [0u8; 12];
-        thread_rng().fill_bytes(&mut nonce_bytes);
-        let nonce = GenericArray::from(nonce_bytes);
-
-        let ciphertext = self.cipher.encrypt(&nonce, plaintext.as_bytes())
-            .expect("encryption failure!");
-
-        let nonce_string = String::from_utf8(nonce.to_vec()).expect("ciphertext is not valid utf-8");
-        let text_string = String::from_utf8(ciphertext.to_vec()).expect("ciphertext is not valid utf-8");
-
-        format!("{} {}", nonce_string, text_string)
-    }*/
-    /*
-    pub fn decrypt(&self, ciphertext: String, iv: String) -> String {
-        let plaintext = self.cipher.decrypt(GenericArray::from_slice(iv.as_bytes()), ciphertext.as_bytes())
-            .expect("decryption failure!");
-
-        String::from_utf8(plaintext.to_vec()).expect("ciphertext is not valid utf-8")
-    }*/
-
-
     pub fn decrypt_string(&self, encrypted: &String) -> Result<String, ()> {
         let decoded = general_purpose::STANDARD.decode(encrypted.trim()).unwrap();
         let nonce = &decoded[..12];
