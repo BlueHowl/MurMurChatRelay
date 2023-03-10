@@ -1,25 +1,29 @@
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::{str, thread};
+use std::sync::{Arc, Mutex};
 use regex::Regex;
 use crate::aesgcm::AesGcmEncryptor;
 use crate::models::Domains;
 
 #[derive(Clone)]
 pub(crate) struct ServerThread {
-    server: Domains
+    server: Domains,
+    stream: Option<Arc<Mutex<TcpStream>>>
 }
 
 impl ServerThread {
 
     pub fn new(server: Domains) -> ServerThread {
         ServerThread {
-            server
+            server,
+            stream: None
         }
 
     }
 
     pub fn run(&mut self, mut stream: TcpStream) {
+        self.stream = Option::from(Arc::new(Mutex::new(stream)));
         let aes_gcm = AesGcmEncryptor::new(self.server.get_aeskey().clone());
 
         let handle = thread::spawn(move || {
@@ -49,7 +53,7 @@ impl ServerThread {
                         match regex.captures(&*uncrypted_msg.trim()) {
                             Some(caps) => {
                                 println!("Domain: {}", &caps["domain"]);
-                                forward_message_to_server();
+                                //TODO
                                 break;
                             }
 
@@ -72,7 +76,17 @@ impl ServerThread {
         handle.join().unwrap();
     }
 
-    pub fn send() {
+    pub fn get_server(&self) -> Domains {
+        return self.server.clone()
+    }
 
+    pub fn send(&self, string: String) {
+        let aes = AesGcmEncryptor::new(self.server.get_aeskey().clone());
+        if let Some(stream) = &self.stream {
+            let tcp_stream = stream.lock().unwrap();
+            println!("Sending message to {}", tcp_stream.peer_addr().unwrap());
+        } else {
+            println!("Erreur stream");
+        }
     }
 }

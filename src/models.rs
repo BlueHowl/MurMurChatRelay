@@ -55,6 +55,6 @@ impl Relay {
     }
 
     pub fn to_string(&self) -> String {
-        return format!("{}, {}, {}, {}", self.multicast_address, self.multicast_port, self.network_interface, self.network_interface);
+        return format!("{}, {}, {}", self.multicast_address, self.multicast_port, self.network_interface);
     }
 }
