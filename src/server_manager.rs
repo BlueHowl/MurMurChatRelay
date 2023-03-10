@@ -17,7 +17,7 @@ impl ServerManager {
         }
     }
 
-    pub fn start_listening(self, relay: Relay) -> io::Result<()> {
+    pub fn start_listening(self, relay: Relay, multicast_adress: String) -> io::Result<()> {
         // Start UDP multicast listener on address 224.1.1.255:23502
         let multicast_socket = UdpSocket::bind(format!("0.0.0.0:{}", relay.get_multicast_port()))?;
         let multicast_addr: std::net::SocketAddrV4 = format!("{}:{}", relay.get_multicast_address(), relay.get_multicast_port()).parse().unwrap();
