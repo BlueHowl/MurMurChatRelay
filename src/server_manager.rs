@@ -99,6 +99,10 @@ impl ServerManager {
 
         Ok(())
     }
+
+    pub fn forward_to_server() {
+
+    }
 }
 
 // this method is used to verify if a client is connected to the server

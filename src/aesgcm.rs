@@ -22,7 +22,7 @@ impl AesGcmEncryptor {
 
         //let mut ciphertext = plaintext.as_bytes().to_vec();
         //let tag = self.cipher.encrypt_in_place_detached(&nonce.into(), &[], &mut ciphertext);
-        let ciphertext = self.cipher.encrypt(nonce.into(), plaintext.as_bytes()).unwrap();
+        let ciphertext = self.cipher.encrypt(&nonce.into(), plaintext.as_bytes()).unwrap();
         let mut result = nonce.to_vec();
         result.extend_from_slice(&*ciphertext);
         //result.extend_from_slice(&tag.unwrap());

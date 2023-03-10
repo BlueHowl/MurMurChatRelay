@@ -71,7 +71,8 @@ impl ServerThread {
 
         handle.join().unwrap();
     }
-}
 
-pub fn forward_message_to_server() {
+    pub fn send() {
+
+    }
 }
