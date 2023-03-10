@@ -84,9 +84,13 @@ impl ServerThread {
         let aes = AesGcmEncryptor::new(self.server.get_aeskey().clone());
         if let Some(stream) = &self.stream {
             let tcp_stream = stream.lock().unwrap();
-            println!("Sending message to {}", tcp_stream.peer_addr().unwrap());
+            let encrypted_msg = aes.encrypt_string(&string).unwrap();
+            let bytes = encrypted_msg.as_bytes();
+            let mut guard = tcp_stream.lock().unwrap();
+            guard.write_all(bytes).unwrap();
+            println!("Sent message to {}", guard.peer_addr().unwrap());
         } else {
-            println!("Erreur stream");
+            println!("Error: no connected client");
         }
     }
 }
