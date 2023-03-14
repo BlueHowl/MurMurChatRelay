@@ -83,7 +83,7 @@ impl ServerThread {
 
                 let aes = AesGcmEncryptor::new(server.clone().get_aeskey().clone());
 
-                let encrypted_msg = aes.encrypt_string(message).unwrap();
+                let encrypted_msg = format!("{}\n", aes.encrypt_string(message).unwrap());
                 println!("Encrypted message : {}", encrypted_msg.clone());
 
                 let bytes_written = stream.write(encrypted_msg.as_bytes()).unwrap();
