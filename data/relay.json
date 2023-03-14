@@ -5,11 +5,11 @@
   "configured_domains": [
     {
       "domain": "server1.godswila.guru",
-      "base_64_aes": "P3FXqAUgfhy5cTjYdWlPQBJ/d6fdpbR88YsDPWPbo14="
+      "base_64_aes": "63FXqAuGhhy5cTjYdWlPQBJ/d6fdp4444YsDPWPbo14="
     },
     {
       "domain": "server2.godswila.guru",
-      "base_64_aes": "OpoyGQKQL66hSkxw50UMWeR3BcN2M+2PgKGvszDVuCE="
+      "base_64_aes": "lloyGQKQL63hSkxw50UrrrR3Bc92M+2PgKGvszh4uCE="
     }
   ]
 }

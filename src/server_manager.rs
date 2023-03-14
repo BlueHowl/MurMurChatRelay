@@ -1,27 +1,30 @@
 use std::{io, thread, str};
+use std::collections::HashMap;
 use std::net::{TcpStream, UdpSocket};
 use std::sync::{Arc, Mutex};
 use regex::Regex;
+use std::string::String;
 use crate::models::{Domains, Relay};
 use crate::server_thread::ServerThread;
 
 pub struct ServerManager {
-    connected_domains: Arc<Mutex<Vec<ServerThread>>>,
+    connected_servers: Arc<Mutex<HashMap<String, TcpStream>>>,
 }
 
 impl ServerManager {
 
     pub fn new() -> ServerManager {
         ServerManager {
-            connected_domains: Arc::new(Mutex::new(Vec::new()))
+            connected_servers: Arc::new(Mutex::new(HashMap::new()))
         }
     }
 
     pub fn start_listening(self, relay: Relay, multicast_adress: String) -> io::Result<()> {
+        println!("Multicast interface Address: {}", multicast_adress);
         // Start UDP multicast listener on address 224.1.1.255:23502
-        let multicast_socket = UdpSocket::bind(format!("0.0.0.0:{}", relay.get_multicast_port()))?;
+        let multicast_socket = UdpSocket::bind(format!("{}:{}", multicast_adress, relay.get_multicast_port()))?;
         let multicast_addr: std::net::SocketAddrV4 = format!("{}:{}", relay.get_multicast_address(), relay.get_multicast_port()).parse().unwrap();
-        multicast_socket.join_multicast_v4(&multicast_addr.ip(), &"0.0.0.0".parse().unwrap())?;
+        multicast_socket.join_multicast_v4(&multicast_addr.ip(), &multicast_adress.as_str().parse().unwrap())?;
 
 
         // Spawn thread to handle multicast messages
@@ -49,15 +52,23 @@ impl ServerManager {
                                 println!("Port: {}, Domain: {}", port, domain);
 
                                 if is_domain_allowed(relay.get_configured_domains().clone(), domain.to_string()) {
+                                    let domain_obj = get_domain(relay.get_configured_domains().clone(),domain.to_string());
+                                    println!("test domainobj {} {}", domain_obj.clone().get_domain(), domain_obj.clone().get_aeskey());
+
                                     // Connect to TCP server using unicast IP address and port
                                     match TcpStream::connect(format!("{}:{}", domain, port)) {
 
-                                        Ok(stream) => {
-                                            let mut connected_domains = self.connected_domains.lock().unwrap();
-                                            let server_thread = ServerThread::new(relay.get_configured_domains().get(0).unwrap().clone());
-                                            connected_domains.push(server_thread);
-                                            let server_thread_ref = connected_domains.last_mut().unwrap(); // get a mutable reference to the last element
-                                            server_thread_ref.run(stream);
+                                        Ok(mut stream) => {
+
+                                            println!("New client: {}", stream.try_clone().unwrap().peer_addr().unwrap());
+
+                                            let server_thread = ServerThread::new(domain_obj.clone(), Arc::clone(&self.connected_servers), relay.get_configured_domains().clone());
+                                            let mut thread_stream = stream.try_clone().unwrap();
+                                            thread::spawn(move || server_thread.run(thread_stream));
+
+                                            let mut servers = self.connected_servers.lock().unwrap();
+                                            servers.insert(domain_obj.clone().get_domain(),stream.try_clone().unwrap());
+
                                         }
                                         Err(e) => {
                                             println!("Error connecting to {}: {}", src.ip(), e);
@@ -84,18 +95,6 @@ impl ServerManager {
         Ok(())
     }
 
-    pub fn forward_to_server(&self, message: String, domain: &str) {
-        let domain_string = domain.to_owned();
-        let connected_domains = self.connected_domains.lock().unwrap();
-        let mut iter = connected_domains.iter();
-        for server in iter {
-            let server_thread = server.to_owned();
-            if server_thread.get_server().get_domain().eq(&domain_string) {
-                server_thread.send(message.clone());
-                return
-            }
-        }
-    }
 }
 
 // this method is used to verify if a client is connected to the server
@@ -108,3 +107,16 @@ pub fn is_domain_allowed(domains: Vec<Domains>, domain_request: String) -> bool 
     }
     is_allowed
 }
+
+pub fn get_domain(domains: Vec<Domains>, domain_request: String) -> Domains {
+
+    for domain in domains {
+        let d = domain.clone();
+        if domain.get_domain().clone() == domain_request {
+            return d;
+        }
+    }
+
+    return Domains::new("".to_string(), "".to_string());
+}
+

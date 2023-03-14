@@ -15,7 +15,7 @@ impl AesGcmEncryptor {
             cipher: Aes256Gcm::new(GenericArray::from_slice(&*general_purpose::STANDARD.decode(aes_key).unwrap()))
         }
     }
-/*
+
     pub fn encrypt_string(&self, plaintext: String) -> Result<String, ()> {
         let mut nonce = [0u8; 12];
         thread_rng().fill_bytes(&mut nonce);
@@ -28,7 +28,7 @@ impl AesGcmEncryptor {
         //result.extend_from_slice(&tag.unwrap());
 
         Ok(general_purpose::STANDARD.encode(&result))
-    }*/
+    }
 
     pub fn decrypt_string(&self, encrypted: &String) -> Result<String, ()> {
         let decoded = general_purpose::STANDARD.decode(encrypted.trim()).unwrap();

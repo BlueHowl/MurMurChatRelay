@@ -1,96 +1,105 @@
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::{str, thread};
-use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex, MutexGuard};
 use regex::Regex;
 use crate::aesgcm::AesGcmEncryptor;
-use crate::models::Domains;
+use crate::models::{Domains};
 
-#[derive(Clone)]
 pub(crate) struct ServerThread {
-    server: Domains,
-    stream: Option<Arc<Mutex<TcpStream>>>
+    domain: Domains,
+    connected_servers: Arc<Mutex<HashMap<String, TcpStream>>>,
+    domain_list: Vec<Domains>
 }
 
 impl ServerThread {
 
-    pub fn new(server: Domains) -> ServerThread {
+    pub fn new(domain: Domains, connected_servers: Arc<Mutex<HashMap<String, TcpStream>>>, domain_list: Vec<Domains>) -> ServerThread {
         ServerThread {
-            server,
-            stream: None
+            domain,
+            connected_servers,
+            domain_list
         }
 
     }
 
-    pub fn run(&mut self, mut stream: TcpStream) {
-        self.stream = Option::from(Arc::new(Mutex::new(stream)));
-        let aes_gcm = AesGcmEncryptor::new(self.server.get_aeskey().clone());
+    pub fn run(mut self, mut stream: TcpStream) {
+        let aes_gcm = AesGcmEncryptor::new(self.domain.get_aeskey().clone());
 
-        let handle = thread::spawn(move || {
-            println!("New client: {}", stream.peer_addr().unwrap());
-            let mut buffer = [0; 1024];
+        let mut buffer = [0; 1024];
 
-            // Read data from the client and send it back
-            loop {
+        // Read data from the client and send it back
+        loop {
 
-                match stream.read(&mut buffer) {
+            match stream.read(&mut buffer) {
 
-                    Ok(0) => {
-                        println!("Client {} disconnected", stream.peer_addr().unwrap());
-                        break;
-                    }
+                Ok(0) => {
+                    println!("Client {} disconnected", stream.peer_addr().unwrap());
+                    break;
+                }
 
-                    Ok(n) => {
-                        let message = str::from_utf8(&buffer[..n]).unwrap().to_string();
+                Ok(n) => {
+                    let message = str::from_utf8(&buffer[..n]).unwrap().to_string();
 
-                        let uncrypted_msg = aes_gcm.decrypt_string(&message).unwrap();
+                    let uncrypted_msg = aes_gcm.decrypt_string(&message).unwrap();
 
-                        println!("Received message from {}: {}", stream.peer_addr().unwrap(), uncrypted_msg.clone());
+                    println!("Received message from {}: {}", stream.peer_addr().unwrap(), uncrypted_msg.clone());
 
-                        let regex = Regex::new(r"^SEND\x20\d{1,5}@[a-zA-Z\d.]{5,200}\x20[a-zA-Z\d]{5,20}@[a-zA-Z\d.]{5,200}\x20#?[a-zA-Z\d]{5,20}@(?P<domain>[a-zA-Z\d.]{5,200})\x20[\x20-\xFF]{1,500}$").unwrap();
+                    let regex = Regex::new(r"^SEND\x20\d{1,5}@[a-zA-Z\d.]{5,200}\x20[a-zA-Z\d]{5,20}@[a-zA-Z\d.]{5,200}\x20#?[a-zA-Z\d]{5,20}@(?P<domain>[a-zA-Z\d.]{5,200})\x20[\x20-\xFF]{1,500}$").unwrap();
 
 
-                        match regex.captures(&*uncrypted_msg.trim()) {
-                            Some(caps) => {
-                                println!("Domain: {}", &caps["domain"]);
-                                //TODO
-                                break;
-                            }
-
-                            None => {
-                                println!("No send match");
-                                break;
-                            }
+                    match regex.captures(&*uncrypted_msg.trim()) {
+                        Some(caps) => {
+                            println!("Domain: {}", &caps["domain"]);
+                            self.send(uncrypted_msg.clone(), caps["domain"].to_string());//, binding);
                         }
 
+                        None => {
+                            println!("No send match");
+                        }
                     }
 
-                    Err(e) => {
-                        println!("Error reading from client: {}", e);
-                        break;
-                    }
+                }
+
+                Err(e) => {
+                    println!("Error reading from client: {}", e);
+                    break;
                 }
             }
-        });
 
-        handle.join().unwrap();
+        }
+
     }
 
     pub fn get_server(&self) -> Domains {
-        return self.server.clone()
+        return self.domain.clone()
     }
 
-    pub fn send(&self, string: String) {
-        let aes = AesGcmEncryptor::new(self.server.get_aeskey().clone());
-        if let Some(stream) = &self.stream {
-            let tcp_stream = stream.lock().unwrap();
-            let encrypted_msg = aes.encrypt_string(&string).unwrap();
-            let bytes = encrypted_msg.as_bytes();
-            let mut guard = tcp_stream.lock().unwrap();
-            guard.write_all(bytes).unwrap();
-            println!("Sent message to {}", guard.peer_addr().unwrap());
-        } else {
-            println!("Error: no connected client");
+
+    pub fn send(&self, message: String, domain: String) {//, binding: MutexGuard<HashMap<String, TcpStream>>) {
+        let mut iter = self.domain_list.iter();
+        for server in iter {
+            if server.clone().get_domain().eq(domain.clone().as_str()) {
+
+                let binding = self.connected_servers.lock().unwrap();
+                let mut stream = binding.get(self.domain.clone().get_domain().as_str()).unwrap();
+
+                let aes = AesGcmEncryptor::new(server.clone().get_aeskey().clone());
+
+                let encrypted_msg = aes.encrypt_string(message).unwrap();
+                println!("Encrypted message : {}", encrypted_msg.clone());
+
+                let bytes_written = stream.write(encrypted_msg.as_bytes()).unwrap();
+                if bytes_written == encrypted_msg.len() {
+                    println!("Message sent successfully to {}", stream.peer_addr().unwrap());
+                } else {
+                    println!("Error: only {} out of {} bytes written", bytes_written, encrypted_msg.len());
+                }
+
+                return
+            }
         }
+
     }
 }

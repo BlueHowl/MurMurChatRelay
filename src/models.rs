@@ -1,3 +1,5 @@
+use std::net::TcpStream;
+
 #[derive(Clone)]
 pub struct Domains {
     domain: String,
@@ -15,7 +17,7 @@ impl Domains {
     pub fn new(domain:String, base_64_aes:String) -> Domains {
         Domains {
             domain,
-            base_64_aes,
+            base_64_aes
         }
     }
 

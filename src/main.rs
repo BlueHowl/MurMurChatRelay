@@ -24,7 +24,7 @@ fn main() -> io::Result<()> {
 
     let server_manager = ServerManager::new();
 
-    server_manager.start_listening(relay, network_interface.get_multicast_address().clone()).expect("TODO: panic message");
+    server_manager.start_listening(relay, network_interface.get_multicast_address().clone()).expect("Failed to start relay");
 
     Ok(())
 }
