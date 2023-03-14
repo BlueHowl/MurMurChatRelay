@@ -1,5 +1,3 @@
-use std::net::TcpStream;
-
 #[derive(Clone)]
 pub struct Domains {
     domain: String,
@@ -48,9 +46,9 @@ impl Relay {
         self.multicast_port.clone()
     }
 
-    pub fn get_network_interface(&self) -> String {
+    /*pub fn get_network_interface(&self) -> String {
         self.network_interface.clone()
-    }
+    }*/
 
     pub fn get_configured_domains(&self) -> Vec<Domains> {
         self.configured_domains.clone()

@@ -5,13 +5,7 @@ mod server_thread;
 mod aesgcm;
 mod net_chooser;
 
-use std::any::Any;
-use std::net::{TcpStream};
-use std::thread;
-use std::str;
-use std::io::{self, Read, Write};
-use network_interface::{NetworkInterface, NetworkInterfaceConfig};
-use regex::Regex;
+use std::io::{self};
 use crate::infrastructure::json_repository::get_relay;
 use crate::server_manager::ServerManager;
 

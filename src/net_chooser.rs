@@ -1,9 +1,7 @@
-use network_interface::{Addr, NetworkInterface};
+use network_interface::{NetworkInterface};
 use network_interface::NetworkInterfaceConfig;
-use std::io::{stdin,stdout,Write};
-use std::{io, usize};
-use aes_gcm::aead::generic_array::typenum::uint;
-use aes_gcm::aes::cipher::NewCipher;
+use std::io::{stdin};
+use std::{usize};
 
 pub struct NetWorkInterface {
     network_interface: String,
@@ -11,7 +9,7 @@ pub struct NetWorkInterface {
 }
 
 pub struct NetWorkInterfacesList {
-    List: Vec<NetWorkInterface>
+    list: Vec<NetWorkInterface>
 }
 
 impl NetWorkInterface {
@@ -30,24 +28,23 @@ impl NetWorkInterface {
         self.multicast_address.clone()
     }
 
-    pub fn to_string(&self) -> String {
+    /*pub fn to_string(&self) -> String {
         return format!("{}, {}", self.network_interface, self.multicast_address);
-    }
+    }*/
 }
 
 impl NetWorkInterfacesList{
     pub fn new() -> NetWorkInterfacesList {
         NetWorkInterfacesList {
-            List: NetWorkInterfacesList::get_network_interfaces()
+            list: NetWorkInterfacesList::get_network_interfaces()
         }
     }
 
-    pub fn add(&mut self, network_interface: String, multicast_address: String) {
+    /*pub fn add(&mut self, network_interface: String, multicast_address: String) {
         self.List.push(NetWorkInterface::new(network_interface, multicast_address));
-    }
+    }*/
 
     fn get_network_interfaces() -> Vec<NetWorkInterface> {
-        let network_interfaces = NetworkInterface::show().unwrap();
         let mut result = Vec::new();
 
         let network_interfaces = NetworkInterface::show().unwrap();
@@ -64,11 +61,11 @@ impl NetWorkInterfacesList{
     }
 
     pub fn choose(&mut self) -> &NetWorkInterface {
-        for i in 0..self.List.len() {
-            println!("{} : {}", i, self.List[i].network_interface.clone());
+        for i in 0..self.list.len() {
+            println!("{} : {}", i, self.list[i].network_interface.clone());
         }
         println!("Select your interface : ");
-        let selected = self.List.get(NetWorkInterfacesList::read_input() as usize).unwrap().clone();
+        let selected = self.list.get(NetWorkInterfacesList::read_input() as usize).unwrap().clone();
         println!("Selected interface : {}", selected.get_network_interface());
         return selected;
     }

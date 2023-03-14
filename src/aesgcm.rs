@@ -1,8 +1,7 @@
-use aes_gcm::{AeadInPlace, Aes256Gcm, Tag};
+use aes_gcm::{Aes256Gcm};
 use aes_gcm::aead::{NewAead, generic_array::GenericArray, Aead};
 use base64::{Engine as _, engine::general_purpose};
 use rand::{RngCore, thread_rng};
-use regex::Regex;
 
 pub struct AesGcmEncryptor {
     cipher: Aes256Gcm

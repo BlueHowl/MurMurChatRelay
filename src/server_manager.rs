@@ -53,17 +53,16 @@ impl ServerManager {
 
                                 if is_domain_allowed(relay.get_configured_domains().clone(), domain.to_string()) {
                                     let domain_obj = get_domain(relay.get_configured_domains().clone(),domain.to_string());
-                                    println!("test domainobj {} {}", domain_obj.clone().get_domain(), domain_obj.clone().get_aeskey());
 
                                     // Connect to TCP server using unicast IP address and port
                                     match TcpStream::connect(format!("{}:{}", domain, port)) {
 
-                                        Ok(mut stream) => {
+                                        Ok(stream) => {
 
                                             println!("New client: {}", stream.try_clone().unwrap().peer_addr().unwrap());
 
                                             let server_thread = ServerThread::new(domain_obj.clone(), Arc::clone(&self.connected_servers), relay.get_configured_domains().clone());
-                                            let mut thread_stream = stream.try_clone().unwrap();
+                                            let thread_stream = stream.try_clone().unwrap();
                                             thread::spawn(move || server_thread.run(thread_stream));
 
                                             let mut servers = self.connected_servers.lock().unwrap();

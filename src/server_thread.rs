@@ -1,8 +1,8 @@
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::{str, thread};
+use std::{str};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 use regex::Regex;
 use crate::aesgcm::AesGcmEncryptor;
 use crate::models::{Domains};
@@ -24,7 +24,7 @@ impl ServerThread {
 
     }
 
-    pub fn run(mut self, mut stream: TcpStream) {
+    pub fn run(self, mut stream: TcpStream) {
         let aes_gcm = AesGcmEncryptor::new(self.domain.get_aeskey().clone());
 
         let mut buffer = [0; 1024];
@@ -72,18 +72,14 @@ impl ServerThread {
 
     }
 
-    pub fn get_server(&self) -> Domains {
-        return self.domain.clone()
-    }
-
 
     pub fn send(&self, message: String, domain: String) {//, binding: MutexGuard<HashMap<String, TcpStream>>) {
-        let mut iter = self.domain_list.iter();
+        let iter = self.domain_list.iter();
         for server in iter {
             if server.clone().get_domain().eq(domain.clone().as_str()) {
 
                 let binding = self.connected_servers.lock().unwrap();
-                let mut stream = binding.get(self.domain.clone().get_domain().as_str()).unwrap();
+                let mut stream = binding.get(domain.clone().as_str()).unwrap();
 
                 let aes = AesGcmEncryptor::new(server.clone().get_aeskey().clone());
 
