@@ -50,7 +50,7 @@ impl NetWorkInterfacesList{
         let network_interfaces = NetworkInterface::show().unwrap();
 
         for itf in network_interfaces.iter() {
-            println!("{:?}", itf.name);
+            //println!("{:?}", itf.name);
             for it in itf.addr.iter() {
                 if it.ip().is_ipv4() {
                     result.push(NetWorkInterface::new(itf.name.clone(), it.ip().to_string()));
