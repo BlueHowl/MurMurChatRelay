@@ -19,12 +19,12 @@ impl ServerManager {
         }
     }
 
-    pub fn start_listening(self, relay: Relay, multicast_adress: String) -> io::Result<()> {
-        println!("Multicast interface Address: {}", multicast_adress);
+    pub fn start_listening(self, relay: Relay, multicast_address: String) -> io::Result<()> {
+        println!("Multicast interface Address: {}", multicast_address);
         // Start UDP multicast listener on address 224.1.1.255:23502
-        let multicast_socket = UdpSocket::bind(format!("{}:{}", multicast_adress, relay.get_multicast_port()))?;
+        let multicast_socket = UdpSocket::bind(format!("{}:{}", multicast_address, relay.get_multicast_port()))?;
         let multicast_addr: std::net::SocketAddrV4 = format!("{}:{}", relay.get_multicast_address(), relay.get_multicast_port()).parse().unwrap();
-        multicast_socket.join_multicast_v4(&multicast_addr.ip(), &multicast_adress.as_str().parse().unwrap())?;
+        multicast_socket.join_multicast_v4(&multicast_addr.ip(), &multicast_address.as_str().parse().unwrap())?;
 
 
         // Spawn thread to handle multicast messages
@@ -49,13 +49,13 @@ impl ServerManager {
 
                                 let port = captures.get(1).unwrap().as_str();
                                 let domain = captures.get(2).unwrap().as_str();
-                                println!("Port: {}, Domain: {}", port, domain);
+                                println!("Port: {}, Domain: {}, Ip: {}", port, domain, src.ip());
 
                                 if is_domain_allowed(relay.get_configured_domains().clone(), domain.to_string()) {
                                     let domain_obj = get_domain(relay.get_configured_domains().clone(),domain.to_string());
 
                                     // Connect to TCP server using unicast IP address and port
-                                    match TcpStream::connect(format!("{}:{}", domain, port)) {
+                                    match TcpStream::connect(format!("{}:{}", src.ip(), port)) {
 
                                         Ok(stream) => {
 
