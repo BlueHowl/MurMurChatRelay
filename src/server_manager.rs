@@ -61,7 +61,10 @@ impl ServerManager {
 
                                             println!("New client: {}", stream.try_clone().unwrap().peer_addr().unwrap());
 
-                                            let server_thread = ServerThread::new(domain_obj.clone(), Arc::clone(&self.connected_servers), relay.get_configured_domains().clone());
+                                            let server_thread = ServerThread::new(domain_obj.clone(),
+                                                                                  Arc::clone(&self.connected_servers),
+                                                                                  relay.get_configured_domains().clone());
+
                                             let thread_stream = stream.try_clone().unwrap();
                                             thread::spawn(move || server_thread.run(thread_stream));
 

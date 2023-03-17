@@ -52,7 +52,7 @@ impl ServerThread {
                     match regex.captures(&*uncrypted_msg.trim()) {
                         Some(caps) => {
                             println!("Domain: {}", &caps["domain"]);
-                            self.send(uncrypted_msg.clone(), caps["domain"].to_string());//, binding);
+                            self.send(uncrypted_msg.clone(), caps["domain"].to_string());
                         }
 
                         None => {
@@ -73,7 +73,7 @@ impl ServerThread {
     }
 
 
-    pub fn send(&self, message: String, domain: String) {//, binding: MutexGuard<HashMap<String, TcpStream>>) {
+    pub fn send(&self, message: String, domain: String) {
         let iter = self.domain_list.iter();
         for server in iter {
             if server.clone().get_domain().eq(domain.clone().as_str()) {

@@ -33,7 +33,7 @@ pub(crate) mod dto {
         multicast_address: String,
         multicast_port: u16,
         network_interface: String,
-        configured_domains: Vec<DomainsDto>//[DomainsDto; 2],  Vec = taille dynamique
+        configured_domains: Vec<DomainsDto>
     }
 
     impl RelayDto {

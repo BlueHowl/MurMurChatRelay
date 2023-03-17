@@ -28,9 +28,6 @@ impl NetWorkInterface {
         self.multicast_address.clone()
     }
 
-    /*pub fn to_string(&self) -> String {
-        return format!("{}, {}", self.network_interface, self.multicast_address);
-    }*/
 }
 
 impl NetWorkInterfacesList{
@@ -39,10 +36,6 @@ impl NetWorkInterfacesList{
             list: NetWorkInterfacesList::get_network_interfaces()
         }
     }
-
-    /*pub fn add(&mut self, network_interface: String, multicast_address: String) {
-        self.List.push(NetWorkInterface::new(network_interface, multicast_address));
-    }*/
 
     fn get_network_interfaces() -> Vec<NetWorkInterface> {
         let mut result = Vec::new();
