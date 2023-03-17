@@ -1,0 +1,15 @@
+{
+  "multicast_address": "224.1.1.255",
+  "multicast_port": 23502,
+  "network_interface": "eth12",
+  "configured_domains": [
+    {
+      "domain": "server1.godswila.guru",
+      "base_64_aes": "63FXqAuGhhy5cTjYdWlPQBJ/d6fdp4444YsDPWPbo14="
+    },
+    {
+      "domain": "server2.godswila.guru",
+      "base_64_aes": "lloyGQKQL63hSkxw50UrrrR3Bc92M+2PgKGvszh4uCE="
+    }
+  ]
+}
