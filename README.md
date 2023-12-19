@@ -6,4 +6,4 @@ Tanguy Wéra</br>
 Samuel VanDeSande</br>
 Quentin Barthélemy</br>
 </br>
-It uses regexes to decompose commands and put them into a tasklist that are excecuted in an executor thread.
+It uses regexes to decompose commands and execute those to let some data pass from a server to another.
